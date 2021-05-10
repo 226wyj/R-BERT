@@ -10,7 +10,7 @@ class SemEvalProcessor():
     
     def relation_2_id(self, filename, output_filename):
         '''
-        Map the relation to corresponding number, 
+        Map the relation to corresponding ID, 
         then save the map in file and return a ordered dict.
         @param
             filename: Target file remains to be processed.
@@ -19,25 +19,28 @@ class SemEvalProcessor():
         '''
         relation = collections.OrderedDict()
         id = 0
+        # Read training file to get all relations.
         with open(filename, 'r') as f1:
             for idx, line in enumerate(f1.readlines()):
-                # relation
                 if idx % 4 == 1:
                     if line not in relation:
                         relation[line] = id 
                         id += 1
-        # 保存关系映射字典，关系名字与编号之间用空格分隔
+        
+        # Store the mapping dict. The relation and its ID is seperated by a space.
         print(relation)
         with open(output_filename, 'w') as f2:
             for k, v in relation.items():
-                # 读取出来的关系字符串末尾是换行符，写入文件时应去掉
                 f2.write(k.replace('\n', '') + " " + str(v) + '\n')
-        print("Relation_2_id Done !")  
+        print("Relation_2_id Done !")
+        return relation
 
-    def getLabels(self, input_file, output_file):
-        """ 
-        获取所有标签
-        """
+    # 我觉得可以删了，通过list(relation.keys())来获取即可
+    def get_labels(self, input_file, output_file):
+        '''
+        Get all the labels.
+        '''
+
         relations = []
         with open(input_file, 'r', encoding='utf-8') as f: 
             for line in f.readlines():
@@ -48,20 +51,21 @@ class SemEvalProcessor():
                 f.write(data + '\n')
         print("Label File Done !")
 
+    
     def _add_spaces(self, sentence):
         """对于每个句子，在<e1>, </e1>, <e2>, </e2>前后分别加上空格以区分
             该方法会用在format_process方法中
         Params:
             sentence : 待处理的句子
         """
-        index = [0, 0, 0, 0]    # index保存各个<e>的位置下表，一共四个元素，初始化全为0
-        index[0] = sentence.find("<e1>") + 4
-        index[1] = sentence.find("</e1>") + 1
-        index[2] = sentence.find("<e2>") + 6
-        index[3] = sentence.find("</e2>") + 3 
+        idx = [0, 0, 0, 0]    # idx保存各个<e>的位置下表，一共四个元素，初始化全为0
+        idx[0] = sentence.find("<e1>") + 4
+        idx[1] = sentence.find("</e1>") + 1
+        idx[2] = sentence.find("<e2>") + 6
+        idx[3] = sentence.find("</e2>") + 3 
         sentence_list = list(sentence)
         for i in range(4):
-            sentence_list.insert(index[i], ' ')        
+            sentence_list.insert(idx[i], ' ')        
         return ''.join(sentence_list)
 
     def format_process(self, filename, output_sentences_filename, 
@@ -81,8 +85,8 @@ class SemEvalProcessor():
                 # 对于每一个句子，去除其开头的编号、空格以及首尾的双引号
                 # 对句子剩余部分的实体分隔符进行前后添加空格操作，保存最终结果
                 if _ % 4 == 0:
-                    index = line.find('\t')
-                    sentences.append(self._add_spaces(line[index + 2: -2]))
+                    idx = line.find('\t')
+                    sentences.append(self._add_spaces(line[idx + 2: -2]))
                 if _ % 4 == 1:    
                     relations.append(line)
         # 保存

@@ -1,3 +1,4 @@
 .vscode/
 *.tsv
 processed/
+bert-base-uncased/
