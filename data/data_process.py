@@ -1,4 +1,7 @@
-from SemEvalProcessor import SemEvalProcessor
+import sys
+sys.path.append('.')
+
+from semeval_processor import SemEvalProcessor
 import platform
 import os 
 import argparse
